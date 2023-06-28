@@ -70,7 +70,10 @@ async function updateFiles() {
 
             let eventSuggestion: string | undefined;
             if (previousLine && previousLine.includes('//')) {
-                eventSuggestion = previousLine.replace('//', '');
+                eventSuggestion = previousLine
+                    .replace('//', '')
+                    .replace(/\r?\n|\r/g, '')
+                    .trimStart();
             }
 
             // Client to Server
@@ -115,7 +118,7 @@ async function updateFiles() {
 }
 
 export function startSuggestions() {
-    interval = setInterval(updateFiles, 5000);
+    interval = setInterval(updateFiles, 2500);
     updateFiles();
 }
 
@@ -140,7 +143,7 @@ export function convertToParamCompletions(line: string, suggestions: EventName[]
     return validParamSuggestions.map((x) => {
         const item = new vscode.CompletionItem(`(${x.eventSuggestion}) => {}`, vscode.CompletionItemKind.Method);
         item.detail = `Use Parameters from Event: ${x.eventName}`;
-        item.insertText = `(${x.eventSuggestion}) => {\n}`;
+        item.insertText = `(${x.eventSuggestion})}) => {}`;
         return item;
     });
 }
