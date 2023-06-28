@@ -2,12 +2,12 @@
   "name": "altv-event-suggestions",
   "displayName": "altv-event-suggestions",
   "description": "An extension that suggests events declared by alt.emit, alt.emitServer, and alt.emitClient",
-  "publisher": "stuyk",
+  "publisher": "altv-stuyk",
   "repository": {
     "url": "https://github.com/altv-crc/altv-event-suggestions-vscode-extension"
   },
 
-  "version": "1.0.1",
+  "version": "1.0.2",
   "engines": {
     "vscode": "^1.70.0"
   },
