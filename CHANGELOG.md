@@ -5,6 +5,7 @@
 - Refactor event handler so it works everywhere.
 - Added new event types for toWebView, and fromWebView
 - Increased performance
+- Read values from variables, to propogate events
 
 ## [1.0.4]
 
