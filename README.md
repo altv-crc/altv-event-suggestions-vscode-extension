@@ -13,6 +13,15 @@ This extension hopes to resolve that.
 * Better event name auto-completion for cross-resource usage.
 * Better parameter suggestions if a comment is placed above the original emit.
 
+## Event Support
+
+✅  WebView to Client
+✅  Client to WebView
+✅  Client to Client 
+✅  Server to Server 
+✅  Server to Client (player.emit, and alt.emitClient)
+✅  Client to Server
+
 ## What is the problem?
 
 When using `emit` the event is not propogated to the appropriate `alt.on` handler.
@@ -47,7 +56,7 @@ alt.emitServer('going-to-server', 'hello', 5);
 Once declared above the emit, the auto-suggestion after filling in `alt.on` will fill out the rest.
 
 ```ts
-alt.onClient('check-out-this-shit', (player, message, aNumber) => {
+alt.onClient('going-to-server', (player, message, aNumber) => {
     console.log(`Got: ${message}, ${value}`);
 });
 ```

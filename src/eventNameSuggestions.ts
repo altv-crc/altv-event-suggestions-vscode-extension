@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { convertToCompletions, getSuggestions } from './suggestions';
+import { EventPropNames, getEmitCompletions } from './fileHelper';
 
 const CompletionActivators = {
     SINGLE_QUOTE: `'`,
@@ -7,46 +7,52 @@ const CompletionActivators = {
     TICK: '`',
 };
 
+function getPropName(line: string, uri: string, isLikelyWebview = false): EventPropNames {
+    const isServer = uri.includes('server');
+    const isClient = uri.includes('client');
+
+    // alt.onServer - but it only on client-side
+    if (isClient && line.includes('onServer')) {
+        return 'isToClient';
+    }
+
+    // alt.onClient
+    if (isServer && line.includes('alt.onClient')) {
+        return 'isToServer';
+    }
+
+    // alt.on - but its server-side
+    if (isServer && line.includes('alt.on')) {
+        return 'isServerOnly';
+    }
+
+    // view.on, webview.on, etc.
+    if (isClient && line.includes('on') && !line.includes('alt')) {
+        return 'isFromWebView';
+    }
+
+    if (isClient && line.includes('alt.on') && isLikelyWebview) {
+        return 'isToWebView';
+    }
+
+    return 'isClientOnly';
+}
+
 export function startEventNameSuggestions(): vscode.Disposable {
     return vscode.languages.registerCompletionItemProvider(
-        ['javascript', 'typescript'],
+        ['javascript', 'typescript', 'html', 'jsx', 'tsx', 'vue', 'svelte'],
         {
             provideCompletionItems(document, position, context, token) {
-                const suggestions = getSuggestions();
                 const line = document.lineAt(position).text.substring(0, position.character);
-                const isServer = document.uri.fsPath.includes('server');
+                const text = document.getText();
 
-                // alt.on - client / server
-                if (line.includes('alt.on') && !line.includes('alt.onClient') && !line.includes('alt.onServer')) {
-                    return convertToCompletions(
-                        suggestions.filter((x) => {
-                            if (isServer) {
-                                return x.props.isServerOnly;
-                            }
-
-                            return x.props.isClientOnly;
-                        })
-                    );
+                let isLikelyWebview = false;
+                if (text.includes('in window') || text.includes('<script>') || text.includes('html')) {
+                    isLikelyWebview = true;
                 }
 
-                // alt.onClient
-                if (line.includes('alt.onServer')) {
-                    return convertToCompletions(
-                        suggestions.filter((x) => {
-                            return x.props.isToClient;
-                        })
-                    );
-                }
-
-                if (line.includes('alt.onClient')) {
-                    return convertToCompletions(
-                        suggestions.filter((x) => {
-                            return x.props.isToServer;
-                        })
-                    );
-                }
-
-                return undefined;
+                const propName = getPropName(line, document.uri.fsPath, isLikelyWebview);
+                return getEmitCompletions(propName);
             },
         },
         CompletionActivators.SINGLE_QUOTE,
