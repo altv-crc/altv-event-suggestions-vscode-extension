@@ -1,5 +1,9 @@
 # Change Log
 
+## [2.0.1]
+
+- Fix bug where variables were only pulled from index file
+
 ## [2.0.0]
 
 - Refactor event handler so it works everywhere.

@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { getFileList } from './fileHelper';
 
 const previousFileVersion: { [uri: string]: number } = {};
 const variableMapping: { [key: string]: string } = {};
@@ -50,7 +51,7 @@ async function update() {
 
     isUpdating = true;
 
-    const files = await vscode.workspace.findFiles('**/server/index.ts', '**/node_modules/**');
+    const files = await getFileList();
     for (let file of files) {
         const stat = await vscode.workspace.fs.stat(file);
         const filePath = String(file.fsPath);
@@ -64,12 +65,7 @@ async function update() {
             file
         );
 
-        if (!symbols) {
-            continue;
-        }
-
-        previousFileVersion[filePath] = stat.size;
-        if (symbols.length <= 0) {
+        if (!symbols || symbols.length <= 0) {
             continue;
         }
 
@@ -97,6 +93,8 @@ async function update() {
         for (let def of definitions) {
             variableMapping[def.key] = def.value;
         }
+
+        previousFileVersion[filePath] = stat.size;
     }
 
     isUpdating = false;
@@ -107,7 +105,7 @@ export function getVariableValue(variableKey: string): string | undefined {
 }
 
 export function initVariableHelper() {
-    interval = setInterval(update, 2000);
+    interval = setInterval(update, 1000);
     update();
 }
 

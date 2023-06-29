@@ -25,7 +25,7 @@ const availableEmits: { [uri: string]: EventName[] } = {};
 let interval: NodeJS.Timer;
 let isUpdating = false;
 
-async function getFileList(): Promise<vscode.Uri[]> {
+export async function getFileList(): Promise<vscode.Uri[]> {
     let fileUris: vscode.Uri[] = [];
     for (let ext of supportedExtensions) {
         const results = await vscode.workspace.findFiles(`**/*.${ext}`, '**/node_modules/**');
@@ -188,6 +188,7 @@ async function updateEmitsFromFile(file: vscode.Uri) {
 
         const eventName = emitEvent;
         const props = getProps(line, file.fsPath, isLikelyWebview);
+
         let eventSuggestion: string | undefined = undefined;
         if (previousLine.includes('//')) {
             eventSuggestion = previousLine
@@ -296,7 +297,7 @@ export function getParamCompletions(line: string): vscode.CompletionItem[] {
 }
 
 export function initFileHelper() {
-    interval = setInterval(update, 2000);
+    interval = setInterval(update, 1000);
     update();
 }
 
